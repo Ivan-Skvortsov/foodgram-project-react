@@ -16,12 +16,13 @@ def test_get_all_tags(guest_client):
     serializer = TagSerializer(tags, many=True)
 
     response = guest_client.get(endpoint)
+    data = response.json()
 
     assert response.status_code != 404
     assert response.status_code == 200
-    assert len(response.data) == tags.count()
-    assert set(response.data[0]) == set(['id', 'name', 'color', 'slug'])
-    assert response.data == serializer.data
+    assert len(data) == tags.count()
+    assert set(data[0]) == set(['id', 'name', 'color', 'slug'])
+    assert data == serializer.data
 
 
 @pytest.mark.django_db(transaction=True)
@@ -32,31 +33,32 @@ def test_get_single_tag(guest_client):
 
     serializer = TagSerializer(tag)
     response = guest_client.get(endpoint)
+    data = response.json()
 
     assert response.status_code != 404
     assert response.status_code == 200
-    assert set(response.data) == set(['id', 'name', 'color', 'slug'])
-    assert response.data == serializer.data
+    assert set(data) == set(['id', 'name', 'color', 'slug'])
+    assert data == serializer.data
 
 
 @pytest.mark.django_db(transaction=True)
-def test_allowed_only_get_method(guest_client):
-    """Test allowed HTTP methods: only GET allowed."""
+def test_tags_endpoint_allow_only_get_method(guest_client):
+    """Test that tags resource allow only GET http method."""
     endpoints = ('/api/tags/', f'/api/tags/{1}/')
-    data = {
+    payload = {
         'name': 'name',
         'color': '#a9d27d',
         'slug': 'slug'
     }
     for endpoint in endpoints:
-        response = guest_client.post(endpoint, data)
+        response = guest_client.post(endpoint, payload)
         assert response.status_code == 405
 
-        response = guest_client.put(endpoint, data)
+        response = guest_client.put(endpoint, payload)
         assert response.status_code == 405
 
-        response = guest_client.patch(endpoint, data)
+        response = guest_client.patch(endpoint, payload)
         assert response.status_code == 405
 
-        response = guest_client.delete(endpoint, data)
+        response = guest_client.delete(endpoint, payload)
         assert response.status_code == 405

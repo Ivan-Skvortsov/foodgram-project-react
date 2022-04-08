@@ -16,6 +16,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
+    'djoser',
     'django_filters',
     'recipes.apps.RecipesConfig',
     'users.apps.UsersConfig',
@@ -90,3 +92,36 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'api.pagination.ModifiedPageNumberPagination',
+}
+
+DJOSER = {
+    'LOGIN_FIELD': 'email',
+    'HIDE_USERS': False,
+    'PERMISSIONS': {
+        'user_list': ['rest_framework.permissions.AllowAny'],
+        'user': ['api.permissions.ReadOnlyPermission', 'rest_framework.permissions.IsAuthenticated'],
+
+        # unused endpoints
+        'user_delete': ['api.permissions.DenyAll'],
+        'activation': ['api.permissions.DenyAll'],
+        'password_reset': ['api.permissions.DenyAll'],
+        'password_reset_confirm': ['api.permissions.DenyAll'],
+        'username_reset': ['api.permissions.DenyAll'],
+        'username_reset_confirm': ['api.permissions.DenyAll'],
+        'set_username': ['api.permissions.DenyAll']
+    },
+    'SERIALIZERS': {
+        'user': 'api.serializers.UserSerializer',
+        'current_user': 'api.serializers.UserSerializer',
+    }
+}

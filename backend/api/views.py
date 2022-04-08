@@ -9,6 +9,7 @@ class TagViewSet(mixins.ListModelMixin,
                  viewsets.GenericViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    pagination_class = None
 
 
 class IngredientViewSet(mixins.ListModelMixin,
@@ -18,3 +19,4 @@ class IngredientViewSet(mixins.ListModelMixin,
     serializer_class = IngredientSerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ('^name',)
+    pagination_class = None
