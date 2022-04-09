@@ -84,7 +84,7 @@ def test_get_recipes_with_filter_favorites(authorized_client_1,
     assert response.status_code == 200
 
     data = response.json()
-    assert data['count'] == 2
+    assert data['count'] == 1
     assert len(data['results']) == 1
     assert data['results'][0]['id'] == test_recipes[0].id
 
@@ -100,7 +100,7 @@ def test_get_recipes_with_filter_shopping_list(authorized_client_1,
     assert response.status_code == 200
 
     data = response.json()
-    assert data['count'] == 2
+    assert data['count'] == 1
     assert len(data['results']) == 1
     assert data['results'][0]['id'] == test_recipes[0].id
 
