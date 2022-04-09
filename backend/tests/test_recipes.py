@@ -116,7 +116,7 @@ def test_get_recipes_with_filter_by_author(authorized_client_1,
     assert response.status_code == 200
 
     data = response.json()
-    assert data['count'] == 2
+    assert data['count'] == 1
     assert len(data['results']) == 1
     assert data['results'][0]['id'] == test_recipes[0].id
 
@@ -124,8 +124,15 @@ def test_get_recipes_with_filter_by_author(authorized_client_1,
 
     response = authorized_client_1.get(endpoint)
     data = response.json()
-    assert data['count'] == 2
+    assert data['count'] == 0
     assert len(data['results']) == 0
+
+    test_recipes.update(author=test_user_1)
+
+    response = authorized_client_1.get(endpoint)
+    data = response.json()
+    assert data['count'] == 2
+    assert len(data['results']) == 2
 
 
 def test_get_recipes_with_filter_by_tags(authorized_client_1,
@@ -141,16 +148,16 @@ def test_get_recipes_with_filter_by_tags(authorized_client_1,
     assert response.status_code == 200
 
     data = response.json()
-    assert data['count'] == 2
+    assert data['count'] == 1
     assert len(data['results']) == 1
     assert data['results'][0]['id'] == test_recipes[0].id
 
     test_recipes[1].tags.add(test_tags[0])
     response = authorized_client_1.get(endpoint)
     data = response.json()
-    assert response.json()['results'] == 1
+    assert response.json()['count'] == 1
 
     test_recipes[1].tags.add(test_tags[1])
     response = authorized_client_1.get(endpoint)
     data = response.json()
-    assert response.json()['results'] == 2
+    assert response.json()['count'] == 2
