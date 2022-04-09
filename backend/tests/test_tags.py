@@ -1,34 +1,28 @@
 import pytest
 
-from recipes.models import Tag
 from api.serializers import TagSerializer
 
 
 @pytest.mark.django_db(transaction=True)
-def test_get_all_tags(guest_client):
+def test_get_all_tags(guest_client, test_tags):
     """Test tag list resource."""
     endpoint = '/api/tags/'
-
-    Tag.objects.create(name='Тег 1', color='#a9d27d', slug='tag_color')
-    Tag.objects.create(name='Тег 2 (без цвета)', slug='tag_no_color')
-
-    tags = Tag.objects.all()
-    serializer = TagSerializer(tags, many=True)
+    serializer = TagSerializer(test_tags, many=True)
 
     response = guest_client.get(endpoint)
     data = response.json()
 
     assert response.status_code != 404
     assert response.status_code == 200
-    assert len(data) == tags.count()
+    assert len(data) == test_tags.count()
     assert set(data[0]) == set(['id', 'name', 'color', 'slug'])
     assert data == serializer.data
 
 
 @pytest.mark.django_db(transaction=True)
-def test_get_single_tag(guest_client):
+def test_get_single_tag(guest_client, test_tags):
     """Test single tag resource."""
-    tag = Tag.objects.create(name='Тег 1', color='#a9d27d', slug='tag_color')
+    tag = test_tags[0]
     endpoint = f'/api/tags/{tag.pk}/'
 
     serializer = TagSerializer(tag)

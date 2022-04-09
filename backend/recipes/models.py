@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
+from recipes.validators import cooking_time_validator
+
 
 User = get_user_model()
 
@@ -70,6 +72,7 @@ class Recipe(models.Model):
     )
     ingredients = models.ManyToManyField(
         Ingredient,
+        through='RecipeIngredients',
         related_name='recipes',
         verbose_name='Ингредиенты'
     )
@@ -83,16 +86,26 @@ class Recipe(models.Model):
     text = models.TextField(
         verbose_name='Описание'
     )
-    cooking_time = models.IntegerField(  # TODO: >=1
-        verbose_name='Время приготовления (мин)'
+    cooking_time = models.IntegerField(
+        verbose_name='Время приготовления (мин)',
+        validators=[cooking_time_validator]
     )
 
     class Meta:
+        ordering = ['name']
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 
     def __str__(self):
         return self.name
+
+
+class RecipeIngredients(models.Model):
+    recipe = models.ForeignKey(
+        Recipe, on_delete=models.CASCADE, related_name='recipe_ingredients'
+    )
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    amount = models.IntegerField(verbose_name='Количество')
 
 
 class UserRecipe(models.Model):

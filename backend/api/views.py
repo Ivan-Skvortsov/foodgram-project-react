@@ -1,7 +1,8 @@
 from rest_framework import mixins, viewsets, filters
 
-from recipes.models import Ingredient, Tag
-from api.serializers import IngredientSerializer, TagSerializer
+from recipes.models import Ingredient, Tag, Recipe
+from api.serializers import (IngredientSerializer, TagSerializer,
+                             RecipeSerializer)
 
 
 class TagViewSet(mixins.ListModelMixin,
@@ -20,3 +21,8 @@ class IngredientViewSet(mixins.ListModelMixin,
     filter_backends = (filters.SearchFilter,)
     search_fields = ('^name',)
     pagination_class = None
+
+
+class RecipeViewSet(viewsets.ModelViewSet):
+    queryset = Recipe.objects.all()
+    serializer_class = RecipeSerializer

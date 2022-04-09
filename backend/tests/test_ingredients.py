@@ -5,30 +5,24 @@ from api.serializers import IngredientSerializer
 
 
 @pytest.mark.django_db(transaction=True)
-def test_get_all_ingredients(guest_client):
+def test_get_all_ingredients(guest_client, test_ingredients):
     """Test ingredient list resource."""
     endpoint = '/api/ingredients/'
-
-    Ingredient.objects.create(name='Salt', measurement_unit='g')
-    Ingredient.objects.create(name='Sugar', measurement_unit='kg')
-
-    ingredients = Ingredient.objects.all()
-    serializer = IngredientSerializer(ingredients, many=True)
-
+    serializer = IngredientSerializer(test_ingredients, many=True)
     response = guest_client.get(endpoint)
     data = response.json()
 
     assert response.status_code != 404
     assert response.status_code == 200
-    assert len(data) == ingredients.count()
+    assert len(data) == test_ingredients.count()
     assert set(data[0]) == set(['id', 'name', 'measurement_unit'])
     assert data == serializer.data
 
 
 @pytest.mark.django_db(transaction=True)
-def test_get_single_ingredient(guest_client):
+def test_get_single_ingredient(guest_client, test_ingredients):
     """Test single ingredient resource."""
-    ingredient = Ingredient.objects.create(name='Salt', measurement_unit='g')
+    ingredient = test_ingredients[0]
     endpoint = f'/api/ingredients/{ingredient.pk}/'
 
     serializer = IngredientSerializer(ingredient)
