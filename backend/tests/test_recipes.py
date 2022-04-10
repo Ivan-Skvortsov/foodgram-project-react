@@ -161,3 +161,16 @@ def test_get_recipes_with_filter_by_tags(authorized_client_1,
     response = authorized_client_1.get(endpoint)
     data = response.json()
     assert response.json()['count'] == 2
+
+
+@pytest.mark.django_db(transaction=True)
+def test_create_recipe_unavailable_to_guest(guest_client):
+    response = guest_client.post(RECIPES_ENDPOINT)
+
+    assert response.status_code != 404
+    assert response.status_code == 401
+
+
+@pytest.mark.django_db(transaction=True)
+def test_create_recipe_valid_data(authorized_client_1):
+    
