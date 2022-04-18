@@ -1,6 +1,5 @@
 import pytest
 
-
 from recipes.models import Tag, Ingredient, Recipe
 
 
@@ -64,8 +63,8 @@ def test_ingredients():
 def test_recipes(test_tags, test_ingredients, test_user_1, test_user_2):
     recipe1 = Recipe.objects.create(
         author=test_user_1,
+        image='',
         name='Тестовый рецепт 1',
-        # image='images/image.png',  # FIXME!
         text='Описание тестового рецепта №1',
         cooking_time=12
     )
@@ -75,17 +74,32 @@ def test_recipes(test_tags, test_ingredients, test_user_1, test_user_2):
 
     recipe2 = Recipe.objects.create(
         author=test_user_2,
+        image='',
         name='Тестовый рецепт 2',
-        # image='images/image.png',  # FIXME!
         text='Описание тестового рецепта №2',
         cooking_time=1
     )
     recipe2.save()
     less_tags = test_tags[::-1]
-    recipe2.tags.add(*less_tags)
     less_ingredients = test_ingredients[::-1]
+    recipe2.tags.add(*less_tags)
     recipe2.ingredients.add(
         *less_ingredients, through_defaults={'amount': 2}
     )
 
     return Recipe.objects.all()
+
+
+@pytest.fixture
+def valid_recipe_data(test_ingredients, test_tags):
+    return {
+        'ingredients': [
+            {'id': test_ingredients[0].pk, 'amount': 10},
+            {'id': test_ingredients[1].pk, 'amount': 5}
+        ],
+        'tags': [test_tags[0].pk, test_tags[1].pk],
+        'image': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg==',  # noqa
+        'name': 'Рецепт, созданный/измененный запросом API',
+        'text': 'Описание рецепта',
+        'cooking_time': 1
+    }

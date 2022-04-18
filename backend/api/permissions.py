@@ -13,3 +13,13 @@ class DenyAll(permissions.BasePermission):
 
     def has_permission(self, request, view):
         return False
+
+
+class IsAuthorOfContentOrReadOnly(permissions.BasePermission):
+    """Content editing only to author of content."""
+    msg = 'Изменение чужого контента запрещено!'
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return request.user == obj.author

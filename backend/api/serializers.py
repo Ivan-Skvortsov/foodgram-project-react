@@ -1,4 +1,7 @@
+import base64
+
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework import serializers
 
 from recipes.models import Tag, Ingredient, Recipe, RecipeIngredients
@@ -50,6 +53,15 @@ class RecipeIngredientsSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
+class RecipeIngredientWriteSerializer(serializers.ModelSerializer):
+
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+
+    class Meta:
+        model = RecipeIngredients
+        fields = ('id', 'amount')
+
+
 class RecipeSerializer(serializers.ModelSerializer):
 
     is_favorited = serializers.BooleanField(default=False)
@@ -65,3 +77,82 @@ class RecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'tags', 'author', 'ingredients', 'is_favorited',
                   'is_in_shopping_cart', 'name', 'image', 'text',
                   'cooking_time')
+
+
+class Base64ToImageField(serializers.ImageField):
+
+    def to_internal_value(self, data):
+        if not isinstance(data, str):
+            raise serializers.ValidationError(
+                f'Incorrect type. Expected string, got {type(data).__name__}'
+            )
+        if ';base64,' and 'data:image/' not in data:
+            raise serializers.ValidationError(
+                'Incorrect format. Expected base64 encoded image'
+            )
+        try:
+            data_format,  encoded_img = data.split(';base64,')
+            _, content_type = data_format.split(':')
+            img_extension = content_type.split('/')[-1]
+            decoded_img = base64.b64decode(encoded_img)
+            return SimpleUploadedFile(
+                name=f'img.{img_extension}',
+                content=decoded_img,
+                content_type=content_type
+            )
+        except Exception:
+            raise serializers.ValidationError(
+                'Incorrect format. Expected base64 encoded image'
+            )
+
+
+class RecipeWriteSerializer(serializers.ModelSerializer):
+
+    image = Base64ToImageField()
+    ingredients = RecipeIngredientWriteSerializer(many=True)
+
+    def validate_ingredients(self, ingredients):
+        if len(ingredients) < 1:
+            raise serializers.ValidationError('This list can not be empty')
+        return ingredients
+
+    def create(self, validated_data):
+        tag_list = validated_data.pop('tags')
+        ingredient_list = validated_data.pop('ingredients')
+        recipe = Recipe.objects.create(**validated_data)
+        for ingredient in ingredient_list:
+            RecipeIngredients.objects.create(
+                recipe=recipe,
+                ingredient=ingredient['id'],
+                amount=ingredient['amount']
+            )
+        recipe.tags.set(tag_list)
+        return recipe
+
+    def update(self, instance, validated_data):
+        tag_list = validated_data.pop('tags')
+        ingredient_list = validated_data.pop('ingredients')
+        instance.ingredients.clear()
+        instance.tags.clear()
+        for ingredient in ingredient_list:
+            RecipeIngredients.objects.create(
+                recipe=instance,
+                ingredient=ingredient['id'],
+                amount=ingredient['amount']
+            )
+        instance.tags.set(tag_list)
+        for key, val in validated_data.items():
+            setattr(instance, key, val)
+        instance.save()
+        return instance
+
+    def to_representation(self, instance):
+        serializer = RecipeSerializer(instance)
+        return serializer.data
+
+    class Meta:
+        model = Recipe
+        fields = ('ingredients', 'tags', 'image', 'name', 'text',
+                  'cooking_time')
+        required_fields = ('ingredients', 'tags', 'image', 'name', 'text',
+                           'cooking_time')
