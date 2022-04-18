@@ -270,7 +270,9 @@ def test_update_recipe_valid_data(authorized_client_1,
                                   valid_recipe_data):
     # authorized_client_1 is author of test_recipes[0]
     endpoint = RECIPES_ENDPOINT + f'{test_recipes[0].pk}/'
-    response = authorized_client_1.patch(endpoint, valid_recipe_data, format='json')
+    response = authorized_client_1.patch(
+        endpoint, valid_recipe_data, format='json'
+    )
 
     assert response.status_code != 404
     assert response.status_code == 200
