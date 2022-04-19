@@ -1,6 +1,6 @@
 import pytest
 
-from recipes.models import Tag, Ingredient, Recipe
+from recipes.models import Tag, Ingredient, Recipe, ShoppingList
 
 
 @pytest.fixture
@@ -103,3 +103,16 @@ def valid_recipe_data(test_ingredients, test_tags):
         'text': 'Описание рецепта',
         'cooking_time': 1
     }
+
+
+@pytest.fixture
+def shopping_list_recipes(test_recipes, test_user_1):
+    ShoppingList.objects.create(
+        user=test_user_1,
+        recipe=test_recipes[0]
+    )
+    ShoppingList.objects.create(
+        user=test_user_1,
+        recipe=test_recipes[1]
+    )
+    return Recipe.objects.all()

@@ -8,11 +8,20 @@ User = get_user_model()
 
 
 def get_deleted_user():
+    """Returns `deleted` user."""
     return User.objects.get_or_create(
         username='deleted',
         first_name='Пользователь',
         last_name='Удален'
     )[0]
+
+
+def get_image_upload_path(instance, filename):
+    """
+    Generate path to upload recipe images.
+    Images will be uploaded to <MEDIA_ROOT>/user_<id>/recipe_<id>/<filename>.
+    """
+    return f'user_{instance.author.id}/recipe_{instance.id}/{filename}'
 
 
 class Tag(models.Model):
@@ -81,7 +90,8 @@ class Recipe(models.Model):
         verbose_name='Название рецепта'
     )
     image = models.ImageField(
-        verbose_name='Картинка'
+        verbose_name='Картинка',
+        upload_to=get_image_upload_path
     )
     text = models.TextField(
         verbose_name='Описание'
@@ -127,6 +137,11 @@ class UserRecipe(models.Model):
     class Meta:
         abstract = True
         ordering = ['user']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_%(class)s_entry')
+        ]
 
 
 class Favorite(UserRecipe):

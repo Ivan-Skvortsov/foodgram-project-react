@@ -156,3 +156,10 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                   'cooking_time')
         required_fields = ('ingredients', 'tags', 'image', 'name', 'text',
                            'cooking_time')
+
+
+class ShortRecipeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'image', 'name', 'cooking_time')
