@@ -16,7 +16,11 @@ UserModel = get_user_model()
 
 
 class ShoppingListGenerator:
-
+    """
+    A class that creates a list of ingredients with amounts and
+    measurement units from all recipes, that user marked as `in_shopping_cart`.
+    List can be converted to PDF and returned as HttpResponse.
+    """
     def __init__(self, user: UserModel) -> None:
         self.user = user
 

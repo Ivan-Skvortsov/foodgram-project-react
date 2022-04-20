@@ -11,6 +11,7 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Main user serializer, used for `users` endpoints."""
 
     is_subscribed = serializers.SerializerMethodField()
 
@@ -27,6 +28,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
+    """Tag serializer for `tags` endpoints."""
 
     class Meta:
         model = Tag
@@ -34,6 +36,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
+    """Ingredient serializer for `ingredients` endpoints."""
 
     class Meta:
         model = Ingredient
@@ -41,6 +44,11 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeIngredientsSerializer(serializers.ModelSerializer):
+    """
+    RecipeIngredient serializer, used as nested serializer for `ingredients`
+    field of Recipe. Provides `amount` of ingredient for specific Recipe.
+    Represents `safe` methods.
+    """
 
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
@@ -54,6 +62,10 @@ class RecipeIngredientsSerializer(serializers.ModelSerializer):
 
 
 class RecipeIngredientWriteSerializer(serializers.ModelSerializer):
+    """
+    Same as RecipeIngredient serializerm but used for creating and updating
+    Recipe objects.
+    """
 
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
 
@@ -63,7 +75,7 @@ class RecipeIngredientWriteSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-
+    """Serializer for Recipe model. Represents `safe` methods."""
     is_favorited = serializers.BooleanField(default=False)
     is_in_shopping_cart = serializers.BooleanField(default=False)
     tags = TagSerializer(many=True)
@@ -80,6 +92,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class Base64ToImageField(serializers.ImageField):
+    """Custom image field, that converts Base64 encoded string to image."""
 
     def to_internal_value(self, data):
         if not isinstance(data, str):
@@ -107,6 +120,8 @@ class Base64ToImageField(serializers.ImageField):
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
+    """Serializer for Recipe model. Used for creating and updating Recipe
+    objects."""
 
     image = Base64ToImageField()
     ingredients = RecipeIngredientWriteSerializer(many=True)
@@ -159,6 +174,10 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Recipe model with reduced number of fields.
+    Used to represent User->Recipe relations (favorites, shopping list, etc.).
+    """
 
     class Meta:
         model = Recipe
@@ -166,6 +185,7 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
 
 
 class UserWithRecipesSerializer(UserSerializer):
+    """Serializer for User model. Used to represent User subscriptions."""
 
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
