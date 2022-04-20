@@ -1,19 +1,24 @@
 from django.db.models import Exists, OuterRef
 from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
 
 from rest_framework import (mixins, viewsets, filters, permissions, response,
                             status, exceptions)
 from rest_framework.decorators import action
 
 from django_filters import rest_framework as dj_filters
+from djoser.views import UserViewSet as DjoserUserViewSet
 
 from recipes.models import Ingredient, ShoppingList, Tag, Recipe, Favorite
 from api.serializers import (IngredientSerializer, TagSerializer,
                              RecipeSerializer, RecipeWriteSerializer,
-                             ShortRecipeSerializer)
+                             ShortRecipeSerializer, UserWithRecipesSerializer)
 from api.filters import RecipeFilter
 from api.permissions import IsAuthorOfContentOrReadOnly
 from api.services import ShoppingListGenerator
+
+
+User = get_user_model()
 
 
 class TagViewSet(mixins.ListModelMixin,
@@ -129,4 +134,50 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     'Error. This recipe is not in your favorites'
                 )
             favorites_entry.delete()
+            return response.Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserViewSet(DjoserUserViewSet):
+
+    @action(methods=['GET'],
+            detail=False,
+            permission_classes=[permissions.IsAuthenticated],
+            url_path='subscriptions',
+            url_name='subscriptions')
+    def get_subscriptions(self, request):
+        users = self.request.user.subscribed_to.all()
+        paginated_qs = self.paginate_queryset(users)
+        serializer = UserWithRecipesSerializer(paginated_qs, many=True)
+        recipes_limit = self.request.query_params.get('recipes_limit')
+        serializer.context['recipes_limit'] = recipes_limit
+        return self.get_paginated_response(serializer.data)
+
+    @action(methods=['POST', 'DELETE'],
+            detail=True,
+            permission_classes=[permissions.IsAuthenticated],
+            url_path='subscribe',
+            url_name='subscribe')
+    def modify_subscriptions(self, request, id=None):
+        user = self.request.user
+        subscription = get_object_or_404(User, id=id)
+        if user.id == subscription.id:
+            raise exceptions.ValidationError(
+                    'Error. You can not follow/unfollow yourself'
+                )
+        if request.method == 'POST':
+            if subscription in user.subscribed_to.all():
+                raise exceptions.ValidationError(
+                    'Error. You are already following this user'
+                )
+            user.subscribed_to.add(subscription)
+            serializer = UserWithRecipesSerializer(instance=subscription)
+            return response.Response(
+                serializer.data, status=status.HTTP_201_CREATED
+            )
+        if request.method == 'DELETE':
+            if subscription not in user.subscribed_to.all():
+                raise exceptions.ValidationError(
+                    'Error. You are not following this user'
+                )
+            user.subscribed_to.remove(subscription)
             return response.Response(status=status.HTTP_204_NO_CONTENT)

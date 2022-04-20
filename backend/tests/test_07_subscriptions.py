@@ -45,12 +45,13 @@ def test_get_subscriptions_with_query_params(authorized_client_1,
                                              test_recipes,
                                              test_user_1,
                                              test_user_2):
+    test_user_1.subscribed_to.add(test_user_2)
     endpoint = SUBSCRIPTIONS_ENDPOINT + '?limit=1'
     response = authorized_client_1.get(endpoint)
     assert response.status_code != 404
     assert response.status_code == 200
 
-    endpoint = SUBSCRIPTIONS_ENDPOINT + '?limit=1&page=2'
+    endpoint = SUBSCRIPTIONS_ENDPOINT + '?limit=1&page=1'
     response = authorized_client_1.get(endpoint)
     assert response.status_code != 404
     assert response.status_code == 200

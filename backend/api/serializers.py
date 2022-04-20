@@ -163,3 +163,28 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'image', 'name', 'cooking_time')
+
+
+class UserWithRecipesSerializer(UserSerializer):
+
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+    is_subscribed = serializers.BooleanField(default=True)
+
+    def get_recipes(self, obj):
+        recipes_limit = self.context.get('recipes_limit')
+        if recipes_limit:
+            try:
+                recipes_limit = int(recipes_limit)
+            except ValueError:
+                recipes_limit = None
+        recipes = obj.recipes.all()[:recipes_limit]
+        return ShortRecipeSerializer(recipes, many=True).data
+
+    def get_recipes_count(self, obj):
+        return obj.recipes.all().count()
+
+    class Meta:
+        model = User
+        fields = ('email', 'username', 'last_name', 'first_name',
+                  'id', 'is_subscribed', 'recipes', 'recipes_count')

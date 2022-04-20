@@ -6,7 +6,6 @@ from api.serializers import IngredientSerializer
 
 @pytest.mark.django_db(transaction=True)
 def test_get_all_ingredients(guest_client, test_ingredients):
-    """Test ingredient list resource."""
     endpoint = '/api/ingredients/'
     serializer = IngredientSerializer(test_ingredients, many=True)
     response = guest_client.get(endpoint)
@@ -21,7 +20,6 @@ def test_get_all_ingredients(guest_client, test_ingredients):
 
 @pytest.mark.django_db(transaction=True)
 def test_get_single_ingredient(guest_client, test_ingredients):
-    """Test single ingredient resource."""
     ingredient = test_ingredients[0]
     endpoint = f'/api/ingredients/{ingredient.pk}/'
 
@@ -37,7 +35,6 @@ def test_get_single_ingredient(guest_client, test_ingredients):
 
 @pytest.mark.django_db(transaction=True)
 def test_ingredients_endpoint_allow_only_get_method(guest_client):
-    """Test that ingredient resource allow only GET http method."""
     endpoints = ('/api/ingredients/', f'/api/ingredients/{1}/')
     payload = {
         'name': 'Salt',
@@ -59,7 +56,6 @@ def test_ingredients_endpoint_allow_only_get_method(guest_client):
 
 @pytest.mark.django_db(transaction=True)
 def test_search_ingredients_by_name(guest_client):
-    """Test search ingredients by name."""
     Ingredient.objects.create(name='Salt', measurement_unit='g')
     Ingredient.objects.create(name='Sugar', measurement_unit='kg')
     Ingredient.objects.create(name='Лимон', measurement_unit='шт')
