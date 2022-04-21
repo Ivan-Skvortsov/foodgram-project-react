@@ -1,1 +1,38 @@
 from django.contrib import admin
+
+from recipes.models import Tag, Ingredient, Recipe
+
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = ('name', 'color')
+
+
+@admin.register(Ingredient)
+class IngredientAdmin(admin.ModelAdmin):
+    list_display = ('name', 'measurement_unit')
+    search_fields = ('name', )
+
+
+class IngredientsInLine(admin.TabularInline):
+    model = Recipe.ingredients.through
+
+
+@admin.register(Recipe)
+class RecipeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'author_username')
+    search_fields = ('author__username', 'name')
+    list_filter = ('tags', )
+    fields = ('author', 'name', 'tags', 'text', 'image', 'cooking_time',
+              'favorite_count')
+    readonly_fields = ('favorite_count', )
+    inlines = (IngredientsInLine, )
+
+    @admin.display(description='Автор')
+    def author_username(self, obj):
+        return obj.author.username
+
+    @admin.display(description='В избранном у')
+    def favorite_count(self, obj):
+        count = obj.favorite_recipes.all().count()
+        return f'{count} чел.'

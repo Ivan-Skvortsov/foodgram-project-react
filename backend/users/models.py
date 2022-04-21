@@ -20,7 +20,7 @@ class FoodgramUser(AbstractUser):
     username = models.CharField(
         max_length=150,
         unique=True,
-        verbose_name='Уникальный юзернейм',
+        verbose_name='Имя пользователя',
         validators=[username_validator]
     )
     last_name = models.CharField(
@@ -43,4 +43,6 @@ class FoodgramUser(AbstractUser):
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
         ordering = ['username']
