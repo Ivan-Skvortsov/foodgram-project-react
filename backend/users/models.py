@@ -7,7 +7,7 @@ from django.core.validators import RegexValidator
 
 username_validator = RegexValidator(
     '^[\\w.@+-]+$',
-    'Username must contain only letters, numbers and symbols . @ + -'
+    'Имя пользователя может содержать только буквы, цифры и символы . @ + -'
 )
 
 

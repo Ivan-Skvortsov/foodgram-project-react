@@ -119,12 +119,12 @@ class RecipeIngredients(models.Model):
     )
     amount = models.IntegerField(verbose_name='Количество')
 
-    def __str__(self):
-        return self.ingredient.name
-
     class Meta:
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
+
+    def __str__(self):
+        return self.ingredient.name
 
 
 class UserRecipe(models.Model):
@@ -141,9 +141,6 @@ class UserRecipe(models.Model):
         related_name='%(class)s_%(app_label)s'
     )
 
-    def __str__(self):
-        return f'Пользователь: {self.user}, рецепт: {self.recipe}'
-
     class Meta:
         abstract = True
         ordering = ['user']
@@ -152,6 +149,9 @@ class UserRecipe(models.Model):
                 fields=['user', 'recipe'],
                 name='unique_%(class)s_entry')
         ]
+
+    def __str__(self):
+        return f'Пользователь: {self.user}, рецепт: {self.recipe}'
 
 
 class Favorite(UserRecipe):

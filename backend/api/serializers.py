@@ -15,16 +15,16 @@ class UserSerializer(serializers.ModelSerializer):
 
     is_subscribed = serializers.SerializerMethodField()
 
+    class Meta:
+        model = User
+        fields = ('email', 'username', 'last_name', 'first_name',
+                  'id', 'is_subscribed')
+
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
         if not request or request.user.is_anonymous:
             return False
         return obj in request.user.subscribed_to.all()
-
-    class Meta:
-        model = User
-        fields = ('email', 'username', 'last_name', 'first_name',
-                  'id', 'is_subscribed')
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -97,11 +97,13 @@ class Base64ToImageField(serializers.ImageField):
     def to_internal_value(self, data):
         if not isinstance(data, str):
             raise serializers.ValidationError(
-                f'Incorrect type. Expected string, got {type(data).__name__}'
+                'Неверный тип данных. '
+                f'Требуемый тип - string, полученный - {type(data).__name__}'
             )
         if ';base64,' and 'data:image/' not in data:
             raise serializers.ValidationError(
-                'Incorrect format. Expected base64 encoded image'
+                'Некорректный формат. '
+                'Требуется изображение, закодированное в строку base64'
             )
         try:
             data_format,  encoded_img = data.split(';base64,')
@@ -115,7 +117,8 @@ class Base64ToImageField(serializers.ImageField):
             )
         except Exception:
             raise serializers.ValidationError(
-                'Incorrect format. Expected base64 encoded image'
+                'Некорректный формат строки base64. '
+                'Требуется изображение, закодированное в строку base64'
             )
 
 
@@ -126,27 +129,25 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     image = Base64ToImageField()
     ingredients = RecipeIngredientWriteSerializer(many=True)
 
-    def validate_ingredients(self, ingredients):
-        if len(ingredients) < 1:
-            raise serializers.ValidationError('This list can not be empty')
-        return ingredients
+    class Meta:
+        model = Recipe
+        fields = ('ingredients', 'tags', 'image', 'name', 'text',
+                  'cooking_time')
+        required_fields = ('ingredients', 'tags', 'image', 'name', 'text',
+                           'cooking_time')
 
-    def create(self, validated_data):
+    def update_or_create_recipe(self, validated_data, instance=None):
         tag_list = validated_data.pop('tags')
         ingredient_list = validated_data.pop('ingredients')
-        recipe = Recipe.objects.create(**validated_data)
-        for ingredient in ingredient_list:
-            RecipeIngredients.objects.create(
-                recipe=recipe,
-                ingredient=ingredient['id'],
-                amount=ingredient['amount']
+        if not (tag_list or ingredient_list):
+            raise serializers.ValidationError(
+                'Укажите как минимум один тег и ингредиент'
             )
-        recipe.tags.set(tag_list)
-        return recipe
-
-    def update(self, instance, validated_data):
-        tag_list = validated_data.pop('tags')
-        ingredient_list = validated_data.pop('ingredients')
+        if not instance:
+            instance = Recipe()
+        for key, val in validated_data.items():
+            setattr(instance, key, val)
+        instance.save()
         instance.ingredients.clear()
         instance.tags.clear()
         for ingredient in ingredient_list:
@@ -156,21 +157,17 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                 amount=ingredient['amount']
             )
         instance.tags.set(tag_list)
-        for key, val in validated_data.items():
-            setattr(instance, key, val)
-        instance.save()
         return instance
+
+    def create(self, validated_data):
+        return self.update_or_create_recipe(validated_data)
+
+    def update(self, instance, validated_data):
+        return self.update_or_create_recipe(validated_data, instance=instance)
 
     def to_representation(self, instance):
         serializer = RecipeSerializer(instance)
         return serializer.data
-
-    class Meta:
-        model = Recipe
-        fields = ('ingredients', 'tags', 'image', 'name', 'text',
-                  'cooking_time')
-        required_fields = ('ingredients', 'tags', 'image', 'name', 'text',
-                           'cooking_time')
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
@@ -188,8 +185,13 @@ class UserWithRecipesSerializer(UserSerializer):
     """Serializer for User model. Used to represent User subscriptions."""
 
     recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.SerializerMethodField()
+    recipes_count = serializers.IntegerField(source='recipes.count')
     is_subscribed = serializers.BooleanField(default=True)
+
+    class Meta:
+        model = User
+        fields = ('email', 'username', 'last_name', 'first_name',
+                  'id', 'is_subscribed', 'recipes', 'recipes_count')
 
     def get_recipes(self, obj):
         recipes_limit = self.context.get('recipes_limit')
@@ -200,11 +202,3 @@ class UserWithRecipesSerializer(UserSerializer):
                 recipes_limit = None
         recipes = obj.recipes.all()[:recipes_limit]
         return ShortRecipeSerializer(recipes, many=True).data
-
-    def get_recipes_count(self, obj):
-        return obj.recipes.all().count()
-
-    class Meta:
-        model = User
-        fields = ('email', 'username', 'last_name', 'first_name',
-                  'id', 'is_subscribed', 'recipes', 'recipes_count')

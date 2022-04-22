@@ -8,7 +8,6 @@ from django.template.loader import get_template
 from django.db.models import QuerySet
 from django.contrib.auth import get_user_model
 from django.conf import settings
-
 from xhtml2pdf import pisa
 
 
@@ -79,7 +78,7 @@ class ShoppingListGenerator:
                                 result,
                                 link_callback=self.link_callback)
         if pdf.err:
-            return HttpResponse('Ops, something went worng')
+            return HttpResponse('Произошла ошибка формирования PDF-файла')
         return HttpResponse(result.getvalue(), content_type='application/pdf')
 
     def generate_pdf(self) -> HttpResponse:

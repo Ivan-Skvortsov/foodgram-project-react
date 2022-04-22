@@ -1,11 +1,9 @@
 from django.db.models import Exists, OuterRef
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
-
 from rest_framework import (mixins, viewsets, filters, permissions, response,
                             status, exceptions)
 from rest_framework.decorators import action
-
 from django_filters import rest_framework as dj_filters
 from djoser.views import UserViewSet as DjoserUserViewSet
 
@@ -58,7 +56,7 @@ class UserRecipeMixin:
         if request.method == 'POST':
             if related_model_entry:
                 raise exceptions.ValidationError(
-                    'Error. You are already added this recipe'
+                    'Ошибка! Вы уже добавили этот рецепт.'
                 )
             model_class.objects.create(user=user, recipe=recipe)
             serializer = ShortRecipeSerializer(instance=recipe)
@@ -68,7 +66,7 @@ class UserRecipeMixin:
         if request.method == 'DELETE':
             if not related_model_entry:
                 raise exceptions.ValidationError(
-                    'Error. You have not added this recipe'
+                    'Ошибка! Этот рецепт отсутсвует в списке.'
                 )
             related_model_entry.delete()
             return response.Response(status=status.HTTP_204_NO_CONTENT)
@@ -86,8 +84,15 @@ class RecipeViewSet(UserRecipeMixin, viewsets.ModelViewSet):
         user = self.request.user
         return (
             Recipe.objects.all().annotate(
-                is_favorited=Exists(Favorite.objects.filter(recipe=OuterRef('pk'), user=user.pk)),  # noqa
-                is_in_shopping_cart=Exists(ShoppingList.objects.filter(recipe=OuterRef('pk'), user=user.pk))  # noqa
+                is_favorited=Exists(
+                    Favorite.objects.filter(
+                        recipe=OuterRef('pk'), user=user.pk
+                    )
+                ),
+                is_in_shopping_cart=Exists(
+                    ShoppingList.objects.filter(
+                        recipe=OuterRef('pk'), user=user.pk)
+                    )
             )
         )
 
@@ -140,25 +145,25 @@ class UserViewSet(DjoserUserViewSet):
             url_path='subscribe')
     def modify_subscriptions(self, request, id=None):
         user = self.request.user
-        subscription = get_object_or_404(User, id=id)
-        if user.id == subscription.id:
+        subscribed_user = get_object_or_404(User, id=id)
+        if user.id == subscribed_user.id:
             raise exceptions.ValidationError(
-                    'Error. You can not follow/unfollow yourself'
+                    'Ошибка! Вы не можете подписаться на себя.'
                 )
         if request.method == 'POST':
-            if subscription in user.subscribed_to.all():
+            if subscribed_user in user.subscribed_to.all():
                 raise exceptions.ValidationError(
-                    'Error. You are already following this user'
+                    'Ошибка! Вы уже подписаны на этого пользователя.'
                 )
-            user.subscribed_to.add(subscription)
-            serializer = UserWithRecipesSerializer(instance=subscription)
+            user.subscribed_to.add(subscribed_user)
+            serializer = UserWithRecipesSerializer(instance=subscribed_user)
             return response.Response(
                 serializer.data, status=status.HTTP_201_CREATED
             )
         if request.method == 'DELETE':
-            if subscription not in user.subscribed_to.all():
+            if subscribed_user not in user.subscribed_to.all():
                 raise exceptions.ValidationError(
-                    'Error. You are not following this user'
+                    'Ошибка! Вы не подписаны на этого пользователя.'
                 )
-            user.subscribed_to.remove(subscription)
+            user.subscribed_to.remove(subscribed_user)
             return response.Response(status=status.HTTP_204_NO_CONTENT)
