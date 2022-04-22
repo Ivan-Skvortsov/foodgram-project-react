@@ -19,9 +19,9 @@ def get_deleted_user():
 def get_image_upload_path(instance, filename):
     """
     Generate path to upload recipe images.
-    Images will be uploaded to <MEDIA_ROOT>/user_<id>/recipe_<id>/<filename>.
+    Images will be uploaded to <MEDIA_ROOT>/user_<id>/recipes/<filename>.
     """
-    return f'user_{instance.author.id}/recipe_{instance.id}/{filename}'
+    return f'user_{instance.author.id}/recipes/{filename}'
 
 
 class Tag(models.Model):

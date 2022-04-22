@@ -8,7 +8,7 @@ RUN apt-get update \
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-COPY ../requirements.txt .
+COPY ./requirements.txt .
 
 RUN pip3 install -U pip
 
