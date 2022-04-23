@@ -18,7 +18,7 @@ jobs:
         name: Install dependencies
         run: |
           python -m pip install -U pip
-          pip install flake8 pep8-naming flake8-broken-line flake8-return flake8-isort
+          pip install flake8 pep8-naming flake8-broken-line flake8-return
           pip install -r backend/requirements.txt
       - 
         name: Test PEP8 and run pytests
