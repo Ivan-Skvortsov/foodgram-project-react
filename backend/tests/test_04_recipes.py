@@ -156,7 +156,7 @@ def test_get_recipes_with_filter_by_tags(authorized_client_1,
     test_recipes[1].tags.add(test_tags[0])
     response = authorized_client_1.get(endpoint)
     data = response.json()
-    assert response.json()['count'] == 1
+    assert response.json()['count'] == 2
 
     test_recipes[1].tags.add(test_tags[1])
     response = authorized_client_1.get(endpoint)
