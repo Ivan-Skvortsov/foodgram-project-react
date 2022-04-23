@@ -7,18 +7,12 @@ services:
       - ./.env
   
   frontend:
-    # image: profcheg/foodgram_frontend:latest
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: profcheg/foodgram_frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
 
   backend:
-    # image: profcheg/foodgram_backend:latest
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
+    image: profcheg/foodgram_backend:latest
     command: sh -c "gunicorn backend.wsgi:application --bind 0:8000"
     restart: always
     volumes:
