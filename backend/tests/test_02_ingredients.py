@@ -55,19 +55,19 @@ def test_ingredients_endpoint_allow_only_get_method(guest_client):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_search_ingredients_by_name(guest_client):
+def test_filter_ingredients_by_name(guest_client):
     Ingredient.objects.create(name='Salt', measurement_unit='g')
     Ingredient.objects.create(name='Sugar', measurement_unit='kg')
     Ingredient.objects.create(name='Лимон', measurement_unit='шт')
 
-    response = guest_client.get('/api/ingredients/?search=Лим')
+    response = guest_client.get('/api/ingredients/?name=Лим')
     assert response.status_code != 404
     assert response.status_code == 200
     assert len(response.data) == 1
     assert 'Лимон' in str(response.data)
 
-    response = guest_client.get('/api/ingredients/?search=s')
+    response = guest_client.get('/api/ingredients/?name=s')
     assert len(response.data) == 2
 
-    response = guest_client.get('/api/ingredients/?search=ugar')
-    assert len(response.data) == 0
+    response = guest_client.get('/api/ingredients/?name=ugar')
+    assert len(response.data) == 1
