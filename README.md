@@ -4,19 +4,51 @@
   <h3>
     Дипломный проект курса Python разработчик+<br />
   </h3>
-    <h6>(первый этап - без инфраструктуры)</h6>
-    <br />
 </div>
+
+## Демо
+Демо-версия развернута по адресу: http://51.250.20.200/ <br/>
+Панель администратора доступна по адресу http://51.250.20.200/admin/<br/>
+Логин администратора: ```admin@admin.admin``` <br/>
+Пароль администратора: ```1q2w3e4r!```<br/>
+
 
 ## О проекте
 Проект реализует сервис, на котором пользователи смогут публиковать рецепты, подписываться на публикации других пользователей, добавлять понравившиеся рецепты в список «Избранное», а перед походом в магазин скачивать сводный список продуктов, необходимых для приготовления одного или нескольких выбранных блюд
 <p align="right">(<a href="#top">наверх</a>)</p>
 
-## Использованные технологии
+## Использованные технологии и пакеты
 * [Django](https://www.djangoproject.com/)
 * [Django REST framework](https://www.django-rest-framework.org/)
+* [Django-filter](https://django-filter.readthedocs.io/en/stable/guide/usage.html)
 * [Djoser](https://djoser.readthedocs.io/en/latest/getting_started.html)
+* [Docker](https://www.docker.com/)
+* [GitHub Actions](https://github.com/features/actions)
 <p align="right">(<a href="#top">наверх</a>)</p>
+
+## Необходимый софт
+Для развертывания проекта потребуется машина с предустановленным Docker и Docker-Compose.<br/>
+Инструкцию по установке можно найти на <a href="https://docs.docker.com/">официальном сайте</a>.
+
+## Установка
+Склонируйте проект на Ваш компьютер
+   ```sh
+   git clone https://github.com/Ivan-Skvortsov/foodgram-project-react.git
+   ```
+Перейдите в папку с инструкциями docker-compose
+   ```sh
+   cd foodgram-project-react/infra
+   ```
+Запустите контейнеры
+   ```sh
+   sudo docker-compose up -d
+   ```
+Создайте суперпользователя django
+   ```sh
+   sudo docker-compose exec backend python3 manage.py createsuperuser
+   ```
+Для развертывания проекта на сервере, необходимо добавить доменное имя сервера в перечень разрешенных хостов Django (backend/backend/settings.py)
+
 
 ## Об авторе
 Автор проекта: Иван Скворцов<br/><br />
