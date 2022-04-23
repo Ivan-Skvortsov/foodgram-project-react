@@ -49,14 +49,14 @@ jobs:
         with:
           context: backend/
           push: true
-          tags: profcheg/foodgram-backend:latest
+          tags: profcheg/foodgram_backend:latest
       - 
         name: Build and push frontend
         uses: docker/build-push-action@v2
         with:
           context: frontend/
           push: true
-          tags: profcheg/foodgram-frontend:latest
+          tags: profcheg/foodgram_frontend:latest
 
   deploy:
     name: Deploy to production server
