@@ -1,7 +1,7 @@
 from django.db.models import Exists, OuterRef
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
-from rest_framework import (mixins, viewsets, filters, permissions, response,
+from rest_framework import (mixins, viewsets, permissions, response,
                             status, exceptions)
 from rest_framework.decorators import action
 from django_filters import rest_framework as dj_filters
@@ -11,7 +11,7 @@ from recipes.models import Ingredient, ShoppingList, Tag, Recipe, Favorite
 from api.serializers import (IngredientSerializer, TagSerializer,
                              RecipeSerializer, RecipeWriteSerializer,
                              ShortRecipeSerializer, UserWithRecipesSerializer)
-from api.filters import RecipeFilter
+from api.filters import RecipeFilter, IngredientFilter
 from api.permissions import IsAuthorOfContentOrReadOnly
 from api.services import ShoppingListGenerator
 
@@ -32,8 +32,8 @@ class IngredientViewSet(mixins.ListModelMixin,
                         viewsets.GenericViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('^name',)
+    filter_backends = (dj_filters.DjangoFilterBackend, )
+    filterset_class = IngredientFilter
     pagination_class = None
 
 
