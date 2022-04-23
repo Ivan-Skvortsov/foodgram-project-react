@@ -42,7 +42,7 @@ class UserRecipeMixin:
     def modify_user_to_recipe_relation(self, request, pk=None,
                                        model_class=None):
         """
-        Adds/removes user-recipe entry of given model_class.
+        Creates/removes user-recipe entry of given model_class.
         model_class should be a child of UserRecipe model.
         """
         user = self.request.user

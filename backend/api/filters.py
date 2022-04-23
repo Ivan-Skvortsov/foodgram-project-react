@@ -1,13 +1,17 @@
 import django_filters
 
-from recipes.models import Recipe
+from recipes.models import Recipe, Tag
 from django.db.models import Value, IntegerField, Q
 
 
 class RecipeFilter(django_filters.FilterSet):
     """Custom filter for RecipeViewSet."""
 
-    tags = django_filters.AllValuesMultipleFilter(field_name='tags__slug')
+    tags = django_filters.ModelMultipleChoiceFilter(
+        field_name='tags__slug',
+        to_field_name='slug',
+        queryset=Tag.objects.all()
+    )
     is_favorited = django_filters.NumberFilter(field_name='is_favorited')
     is_in_shopping_cart = django_filters.NumberFilter(
         field_name='is_in_shopping_cart'
