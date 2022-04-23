@@ -1,4 +1,6 @@
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.conf.urls import url
+from django.http import HttpResponseRedirect
 
 from recipes.models import Tag, Ingredient, Recipe
 
@@ -10,8 +12,26 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
+    change_list_template = 'admin/ingredient_change_list.html'
     list_display = ('name', 'measurement_unit')
     search_fields = ('name', )
+
+    def get_urls(self):
+        urls = super(IngredientAdmin, self).get_urls()
+        custom_urls = [url('import_json/', self.import_ingredients_from_json)]
+        return custom_urls + urls
+
+    def import_ingredients_from_json(self, request):
+        import json
+        json_file = request.FILES['json_file']
+        try:
+            json_data = json.loads(json_file.read())
+            for entry in json_data:
+                Ingredient.objects.create(**entry)
+            self.message_user(request, 'Ингредиенты импортированы')
+        except Exception as e:
+            self.message_user(request, f'Ошибка: {e}', level=messages.ERROR)
+        return HttpResponseRedirect('../')
 
 
 class IngredientsInLine(admin.TabularInline):
