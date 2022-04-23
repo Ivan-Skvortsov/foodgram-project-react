@@ -45,8 +45,6 @@ class UserRecipeMixin:
         Adds/removes user-recipe entry of given model_class.
         model_class should be a child of UserRecipe model.
         """
-        if request.method not in ['POST', 'DELETE']:
-            raise exceptions.APIException('Method not allowed')
         user = self.request.user
         recipe = get_object_or_404(Recipe, pk=pk)
         related_model_entry = model_class.objects.filter(
@@ -70,6 +68,7 @@ class UserRecipeMixin:
                 )
             related_model_entry.delete()
             return response.Response(status=status.HTTP_204_NO_CONTENT)
+        raise exceptions.APIException('Используемый http-метод не разрешен')
 
 
 class RecipeViewSet(UserRecipeMixin, viewsets.ModelViewSet):
@@ -167,3 +166,4 @@ class UserViewSet(DjoserUserViewSet):
                 )
             user.subscribed_to.remove(subscribed_user)
             return response.Response(status=status.HTTP_204_NO_CONTENT)
+        raise exceptions.APIException('Используемый http-метод не разрешен')
