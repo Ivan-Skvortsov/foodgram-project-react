@@ -118,7 +118,7 @@ def test_get_recipes_with_filter_by_author(authorized_client_1,
     data = response.json()
     assert data['count'] == 1
     assert len(data['results']) == 1
-    assert data['results'][0]['id'] == test_recipes[0].id
+    assert data['results'][0]['id'] == test_recipes[1].id
 
     test_recipes.update(author=test_user_2)
 
@@ -269,8 +269,7 @@ def test_get_single_recipe_by_id(guest_client, test_recipes):
 def test_update_recipe_valid_data(authorized_client_1,
                                   test_recipes,
                                   valid_recipe_data):
-    # authorized_client_1 is author of test_recipes[0]
-    endpoint = RECIPES_ENDPOINT + f'{test_recipes[0].pk}/'
+    endpoint = RECIPES_ENDPOINT + f'{test_recipes[1].pk}/'
     response = authorized_client_1.patch(
         endpoint, valid_recipe_data, format='json'
     )
@@ -292,7 +291,7 @@ def test_update_recipe_invalid_data(authorized_client_1,
     invalid_data = valid_recipe_data
     invalid_data['cooking_time'] = 'two minutes'
     invalid_data['tags'] = ['tag_one', 'tag_two']
-    endpoint = RECIPES_ENDPOINT + f'{test_recipes[0].pk}/'
+    endpoint = RECIPES_ENDPOINT + f'{test_recipes[1].pk}/'
     response = authorized_client_1.patch(endpoint, invalid_data)
 
     assert response.status_code != 404
@@ -305,7 +304,7 @@ def test_update_recipe_invalid_data(authorized_client_1,
 def test_update_recipe_empty_data(authorized_client_1,
                                   test_recipes,
                                   valid_recipe_data):
-    endpoint = RECIPES_ENDPOINT + f'{test_recipes[0].pk}/'
+    endpoint = RECIPES_ENDPOINT + f'{test_recipes[1].pk}/'
     response = authorized_client_1.patch(endpoint)
 
     assert response.status_code != 404
@@ -329,8 +328,7 @@ def test_update_recipe_not_allowed_to_guest(guest_client,
 def test_update_recipe_allowed_only_to_author(authorized_client_1,
                                               test_recipes,
                                               valid_recipe_data):
-    # authorized_client_1 is author of test_recipes[0].
-    endpoint = RECIPES_ENDPOINT + f'{test_recipes[1].pk}/'
+    endpoint = RECIPES_ENDPOINT + f'{test_recipes[0].pk}/'
     response = authorized_client_1.patch(endpoint, valid_recipe_data)
     assert response.status_code != 404
     assert response.status_code == 403
@@ -359,8 +357,7 @@ def test_delete_recipe_allowed_only_to_author(authorized_client_1,
                                               guest_client,
                                               test_recipes,
                                               valid_recipe_data):
-    # authorized_client_1 is author of test_recipes[0]
-    endpoint = RECIPES_ENDPOINT + f'{test_recipes[1].pk}/'
+    endpoint = RECIPES_ENDPOINT + f'{test_recipes[0].pk}/'
     response = guest_client.delete(endpoint)
     assert response.status_code != 404
     assert response.status_code == 401
@@ -371,7 +368,7 @@ def test_delete_recipe_allowed_only_to_author(authorized_client_1,
     assert response.status_code == 403
     assert Recipe.objects.all().count() == len(test_recipes)
 
-    endpoint = RECIPES_ENDPOINT + f'{test_recipes[0].pk}/'
+    endpoint = RECIPES_ENDPOINT + f'{test_recipes[1].pk}/'
     response = authorized_client_1.delete(endpoint)
     assert response.status_code != 404
     assert response.status_code == 204
