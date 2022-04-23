@@ -107,7 +107,7 @@ class Base64ToImageField(serializers.ImageField):
                 'Требуется изображение, закодированное в строку base64'
             )
         try:
-            data_format,  encoded_img = data.split(';base64,')
+            data_format, encoded_img = data.split(';base64,')
             _, content_type = data_format.split(':')
             img_extension = content_type.split('/')[-1]
             decoded_img = base64.b64decode(encoded_img)

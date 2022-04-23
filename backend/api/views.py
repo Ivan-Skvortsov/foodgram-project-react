@@ -92,7 +92,7 @@ class RecipeViewSet(UserRecipeMixin, viewsets.ModelViewSet):
                 is_in_shopping_cart=Exists(
                     ShoppingList.objects.filter(
                         recipe=OuterRef('pk'), user=user.pk)
-                    )
+                )
             )
         )
 
@@ -148,8 +148,8 @@ class UserViewSet(DjoserUserViewSet):
         subscribed_user = get_object_or_404(User, id=id)
         if user.id == subscribed_user.id:
             raise exceptions.ValidationError(
-                    'Ошибка! Вы не можете подписаться на себя.'
-                )
+                'Ошибка! Вы не можете подписаться на себя.'
+            )
         if request.method == 'POST':
             if subscribed_user in user.subscribed_to.all():
                 raise exceptions.ValidationError(

@@ -138,8 +138,9 @@ def test_get_recipes_with_filter_by_author(authorized_client_1,
 def test_get_recipes_with_filter_by_tags(authorized_client_1,
                                          test_tags,
                                          test_recipes):
-    endpoint = (RECIPES_ENDPOINT +
-                f'?tags={test_tags[0].slug}&tags={test_tags[1].slug}')
+    endpoint = (
+        RECIPES_ENDPOINT + f'?tags={test_tags[0].slug}&tags={test_tags[1].slug}'  # noqa E501
+    )
 
     test_recipes[1].tags.clear()
     response = authorized_client_1.get(endpoint)
