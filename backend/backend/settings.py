@@ -131,8 +131,8 @@ DJOSER = {
         # unused endpoints
         'user_delete': ['api.permissions.DenyAll'],
         'activation': ['api.permissions.DenyAll'],
-        'password_reset': ['rest_framework.permissions.AllowAny'],
-        'password_reset_confirm': ['rest_framework.permissions.AllowAny'],
+        'password_reset': ['api.permissions.DenyAll'],
+        'password_reset_confirm': ['api.permissions.DenyAll'],
         'username_reset': ['api.permissions.DenyAll'],
         'username_reset_confirm': ['api.permissions.DenyAll'],
         'set_username': ['api.permissions.DenyAll']
