@@ -26,8 +26,10 @@ class IngredientAdmin(admin.ModelAdmin):
         json_file = request.FILES['json_file']
         try:
             json_data = json.loads(json_file.read())
+            ingredients = []
             for entry in json_data:
-                Ingredient.objects.create(**entry)
+                ingredients.append(Ingredient(**entry))
+            Ingredient.objects.bulk_create(ingredients)
             self.message_user(request, 'Ингредиенты импортированы')
         except Exception as e:
             self.message_user(request, f'Ошибка: {e}', level=messages.ERROR)
