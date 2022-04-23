@@ -12,7 +12,7 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    change_list_template = 'admin/ingredient_change_list.html'
+    change_list_template = 'ingredient_change_list.html'
     list_display = ('name', 'measurement_unit')
     search_fields = ('name', )
 
