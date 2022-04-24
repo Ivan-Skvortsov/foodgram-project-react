@@ -304,15 +304,11 @@ def test_update_recipe_invalid_data(authorized_client_1,
 def test_update_recipe_empty_data(authorized_client_1,
                                   test_recipes,
                                   valid_recipe_data):
-    # endpoint = RECIPES_ENDPOINT + f'{test_recipes[1].pk}/'
-    # response = authorized_client_1.patch(endpoint)
+    endpoint = RECIPES_ENDPOINT + f'{test_recipes[1].pk}/'
+    response = authorized_client_1.patch(endpoint)
 
-    # assert response.status_code != 404
-    # assert response.status_code == 400
-
-    # for field in valid_recipe_data.keys():
-    #     assert field in response.json()
-    assert True
+    assert response.status_code != 404
+    assert response.status_code == 400
 
 
 @pytest.mark.django_db(transaction=True)
