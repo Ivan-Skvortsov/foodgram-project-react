@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
-from recipes.validators import cooking_time_validator
+from recipes.validators import positive_integer_validator
 
 
 User = get_user_model()
@@ -98,7 +98,7 @@ class Recipe(models.Model):
     )
     cooking_time = models.IntegerField(
         verbose_name='Время приготовления (мин)',
-        validators=[cooking_time_validator]
+        validators=[positive_integer_validator]
     )
 
     class Meta:
@@ -117,7 +117,10 @@ class RecipeIngredients(models.Model):
     ingredient = models.ForeignKey(
         Ingredient, on_delete=models.CASCADE, verbose_name='Ингредиент'
     )
-    amount = models.IntegerField(verbose_name='Количество')
+    amount = models.IntegerField(
+        verbose_name='Количество',
+        validators=[positive_integer_validator]
+    )
 
     class Meta:
         verbose_name = 'Ингредиент'

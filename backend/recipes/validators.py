@@ -1,8 +1,8 @@
 from django.core.exceptions import ValidationError
 
 
-def cooking_time_validator(value):
+def positive_integer_validator(value):
     if value < 1:
         raise ValidationError(
-            'Время приготовления не может быть меньше 1 минуты!'
+            'Значение не может быть меньше 1!'
         )
