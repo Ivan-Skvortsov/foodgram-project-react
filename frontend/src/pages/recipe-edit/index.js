@@ -269,7 +269,7 @@ const RecipeEdit = ({ onItemDelete }) => {
         />
         <FileInput
           onChange={file => {
-            setRecipeFileWasManuallyChanged(false) // FIXME: true
+            setRecipeFileWasManuallyChanged(true)
             setRecipeFile(file)
           }}
           className={styles.fileInput}

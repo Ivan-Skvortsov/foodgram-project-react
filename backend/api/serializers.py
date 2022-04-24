@@ -134,21 +134,23 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ('ingredients', 'tags', 'image', 'name', 'text',
                   'cooking_time')
-        required_fields = ('ingredients', 'tags', 'image', 'name', 'text',
-                           'cooking_time')
 
-    def update_or_create_recipe(self, validated_data, instance=None):
+    def create(self, validated_data):
         tag_list = validated_data.pop('tags')
         ingredient_list = validated_data.pop('ingredients')
-        if not (tag_list or ingredient_list):
-            raise serializers.ValidationError(
-                'Укажите как минимум один тег и ингредиент'
+        recipe = Recipe.objects.create(**validated_data)
+        for ingredient in ingredient_list:
+            RecipeIngredients.objects.create(
+                recipe=recipe,
+                ingredient=ingredient['id'],
+                amount=ingredient['amount']
             )
-        if not instance:
-            instance = Recipe()
-        for key, val in validated_data.items():
-            setattr(instance, key, val)
-        instance.save()
+        recipe.tags.set(tag_list)
+        return recipe
+
+    def update(self, instance, validated_data):
+        tag_list = validated_data.pop('tags')
+        ingredient_list = validated_data.pop('ingredients')
         instance.ingredients.clear()
         instance.tags.clear()
         for ingredient in ingredient_list:
@@ -158,13 +160,11 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                 amount=ingredient['amount']
             )
         instance.tags.set(tag_list)
+        for key, val in validated_data.items():
+            setattr(instance, key, val)
+        instance.save()
         return instance
 
-    def create(self, validated_data):
-        return self.update_or_create_recipe(validated_data)
-
-    def update(self, instance, validated_data):
-        return self.update_or_create_recipe(validated_data, instance=instance)
 
     def to_representation(self, instance):
         serializer = RecipeSerializer(instance)
