@@ -134,8 +134,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ('ingredients', 'tags', 'image', 'name', 'text',
                   'cooking_time')
-        required_fields = ('ingredients', 'tags', 'image', 'name', 'text',
-                           'cooking_time')
+        # required_fields = ('ingredients', 'tags', 'image', 'name', 'text',
+        #                    'cooking_time')
 
     def update_or_create_recipe(self, validated_data, instance=None):
         tag_list = validated_data.pop('tags')
