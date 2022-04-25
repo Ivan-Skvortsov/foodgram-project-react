@@ -32,6 +32,20 @@
    ```sh
    cd foodgram-project-react/infra
    ```
+Создайте файл с переменными окружения
+   ```sh
+   touch .env
+   ```
+Наполните файл следующими переменными
+   ```sh
+   SECRET_KEY  # секректный ключ Django
+   DB_ENGINE  # используемая база данных (django.db.backends.postgresql_psycopg2)
+   DB_NAME  # имя базы данных
+   POSTGRES_USER  # имя пользователя базы данных
+   POSTGRES_PASSWORD  # пароль пользователя базы данных
+   DB_HOST  # адрес хоста, на котором будет запущена база данных
+   DB_PORT  # порт хоста, на котором будет запущена база данных
+   ```
 Запустите контейнеры
    ```sh
    sudo docker-compose up -d
