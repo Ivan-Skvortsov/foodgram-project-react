@@ -63,7 +63,7 @@ class RecipeIngredientsSerializer(serializers.ModelSerializer):
 
 class RecipeIngredientWriteSerializer(serializers.ModelSerializer):
     """
-    Same as RecipeIngredient serializerm but used for creating and updating
+    Same as RecipeIngredient serializer, but used for creating and updating
     Recipe objects.
     """
 
@@ -126,9 +126,6 @@ class Base64ToImageField(serializers.ImageField):
 class RecipeWriteSerializer(serializers.ModelSerializer):
     """Serializer for Recipe model. Used for creating and updating Recipe
     objects."""
-
-    def __init__(self, instance=None, data=..., **kwargs):
-        super().__init__(instance, data, **kwargs)
 
     image = Base64ToImageField()
     ingredients = RecipeIngredientWriteSerializer(many=True)

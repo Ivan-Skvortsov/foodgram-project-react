@@ -133,3 +133,6 @@ dmypy.json
 
 # vscode settings
 .vscode
+
+# backup
+prod_backup/
